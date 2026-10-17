@@ -291,7 +291,16 @@ async def test_non_200_response_raises_typed_error_with_response(as_async, opera
 @pytest.mark.asyncio
 @pytest.mark.parametrize("as_async", [False, True], ids=["sync", "async"])
 @pytest.mark.parametrize("operation", ["verify", "settle"])
-@pytest.mark.parametrize("body", ["not-json", "[]", '{"error":"unavailable"}', '{"success":false}'])
+@pytest.mark.parametrize(
+    "body",
+    [
+        "not-json",
+        "[]",
+        '{"error":"unavailable"}',
+        # The settlement schema requires transaction and network even on failure.
+        '{"success":false}',
+    ],
+)
 async def test_non_200_invalid_body_keeps_http_failure(as_async, operation, body):
     client, post = _error_client([httpx.Response(503, text=body)], as_async)
 
